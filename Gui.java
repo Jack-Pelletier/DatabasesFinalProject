@@ -3,6 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Scanner;
 
 public class Gui {
 
@@ -292,6 +293,14 @@ public class Gui {
     }
 
     public static void main(String[] args) {
+        Scanner userInformation = new Scanner(System.in);
+        Scanner options = new Scanner(System.in);
+        System.out.println("Enter username and password:");
+        // String input
+        String userName = userInformation.nextLine();
+        String password = userInformation.nextLine();
+
+        //GuiDAL dal = new GUIDAL();
         SwingUtilities.invokeLater(Gui::new);
     }
 }
