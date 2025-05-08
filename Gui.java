@@ -10,7 +10,8 @@ public class Gui {
     private JTabbedPane tabbedPane;
     private JTable orderTable;
     private DefaultTableModel tableModel;
-    private JComboBox titleField, appsField, authorField, genreField;
+    private JComboBox entreeField, appsField, sideField, drinkField, banquetField, sizeField, steakField, fishField, chickenField, pastaField;
+    private JTextField nameField;
     private JLabel orderCountLabel;
 
     public Gui() {
@@ -24,9 +25,109 @@ public class Gui {
         tabbedPane.addTab("Restuarant Info", createInfoPanel());
         tabbedPane.addTab("Menu", createMenuPanel());
         tabbedPane.addTab("Takeout Orders", createOrderManagementPanel());
+        tabbedPane.addTab("Banquet Reservations", createBanquetManagementPanel());
 
         frame.add(tabbedPane);
         frame.setVisible(true);
+    }
+
+    private JPanel createBanquetManagementPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        
+        
+        JPanel detailsPanel = new JPanel(new GridLayout(3, 4, 5, 1));
+        detailsPanel.setBorder(BorderFactory.createTitledBorder("Order"));
+
+        detailsPanel.add(new JLabel("Banquet Room:"));
+        String[] choices = { "CHOICE 1","CHOICE 2", "CHOICE 3","CHOICE 4","CHOICE 5","CHOICE 6"};
+        banquetField = new JComboBox(choices);
+        detailsPanel.add(banquetField);
+
+        detailsPanel.add(new JLabel("Group Size:"));
+        sizeField = new JComboBox();
+        for (int i = 1; i <= 50; i++) {
+            sizeField.addItem(i);
+        }
+        detailsPanel.add(sizeField);
+
+        detailsPanel.add(new JLabel("Name:"));
+        nameField = new JTextField();
+        detailsPanel.add(nameField);
+
+        detailsPanel.add(new JLabel("Steak Meals ($36 per):"));
+        steakField = new JComboBox();
+        for (int i = 0; i <= 50; i++) {
+            steakField.addItem(i);
+        }
+        detailsPanel.add(steakField);
+
+        detailsPanel.add(new JLabel("Salmon Meals ($36 per):"));
+        fishField = new JComboBox();
+        fishField = new JComboBox();
+        for (int i = 0; i <= 50; i++) {
+            fishField.addItem(i);
+        }
+        detailsPanel.add(fishField);
+
+        detailsPanel.add(new JLabel("Chicken Meals ($36 per):"));
+        chickenField = new JComboBox();
+        chickenField = new JComboBox();
+        for (int i = 0; i <= 50; i++) {
+            chickenField.addItem(i);
+        }
+        detailsPanel.add(chickenField);
+
+        detailsPanel.add(new JLabel("Pasta Meals ($36 per):"));
+        pastaField = new JComboBox();
+        pastaField = new JComboBox();
+        for (int i = 0; i <= 50; i++) {
+            pastaField.addItem(i);
+        }
+        detailsPanel.add(pastaField);
+
+        JButton addButton = new JButton("Add Reservation");
+        JButton deleteButton = new JButton("Cancel Reservation");
+
+        //addButton.addActionListener(new AddBookListener());
+        //deleteButton.addActionListener(new DeleteBookListener());
+
+        detailsPanel.add(addButton);
+        detailsPanel.add(deleteButton);
+
+        JTextArea reservationInfoText = new JTextArea();
+        reservationInfoText.setText("Reservation Info:\n\n" +
+                                "Open Hours: Mon - Sun (4 PM - 10 PM)\n" +
+                                "Reservations are held for 2 hour blocks\n" +
+                                "The primary banquet room holds a maximum of 50 guests, while the Sinatra holds 20, all other rooms fit a table of 8\n" +
+                                "All Guests MUST choose from one of the banquet meal options.\n");
+                                reservationInfoText.setEditable(false);
+                                reservationInfoText.setLineWrap(true);
+                                reservationInfoText.setWrapStyleWord(true);
+
+        JScrollPane scrollPane = new JScrollPane(reservationInfoText);
+        scrollPane.setPreferredSize(new Dimension(800, 300)); // Ensure ScrollPane is properly sized
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(new JLabel(" Search: "));
+        JTextField searchField = new JTextField(20);
+        searchPanel.add(searchField);
+
+        // Search results table
+        DefaultTableModel searchTableModel = new DefaultTableModel(new String[]{"Name", "Room", "Party Size", "Cost ($)", "Steak Meals", "Salmon Meals", "Chicken Meals", "Pasta Meals", "Date"}, 0);
+        JTable searchTable = new JTable(searchTableModel);
+        searchTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        JScrollPane searchScrollPane = new JScrollPane(searchTable);
+        searchScrollPane.setPreferredSize(new Dimension(600, 300)); // Ensure ScrollPane is properly sized
+        searchScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        searchScrollPane.setBorder(BorderFactory.createTitledBorder("Current Reservations: "));
+
+        panel.add(searchScrollPane, BorderLayout.SOUTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(detailsPanel, BorderLayout.NORTH);
+
+        return panel;
     }
 
     /*
@@ -51,21 +152,21 @@ public class Gui {
         detailsPanel.setBorder(BorderFactory.createTitledBorder("Order"));
 
         detailsPanel.add(new JLabel("Entree:"));
-        titleField = new JComboBox();
-        detailsPanel.add(titleField);
+        entreeField = new JComboBox();
+        detailsPanel.add(entreeField);
 
         detailsPanel.add(new JLabel("Appetizer:"));
         appsField = new JComboBox();
         detailsPanel.add(appsField);
 
         detailsPanel.add(new JLabel("Side:"));
-        authorField = new JComboBox();
-        detailsPanel.add(authorField);
+        sideField = new JComboBox();
+        detailsPanel.add(sideField);
 
         detailsPanel.add(new JLabel("Drink:"));
         String[] choices = { "CHOICE 1","CHOICE 2", "CHOICE 3","CHOICE 4","CHOICE 5","CHOICE 6"};
-        genreField = new JComboBox(choices);
-        detailsPanel.add(genreField);
+        drinkField = new JComboBox(choices);
+        detailsPanel.add(drinkField);
 
         JButton addButton = new JButton("Add Order");
         JButton deleteButton = new JButton("Cancel Order");
@@ -132,16 +233,16 @@ public class Gui {
     private JPanel createInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        JTextArea libraryInfoText = new JTextArea();
-        libraryInfoText.setText("Welcome to ...!\n\n" +
-                                "Open Hours: Mon - Fri (4 PM - 9 PM) Sat - Sun (12 PM - 10 PM)\n" +
+        JTextArea restaurantInfoText = new JTextArea();
+        restaurantInfoText.setText("Welcome to ...!\n\n" +
+                                "Open Hours: Mon - Sun (4 PM - 10 PM)\n" +
                                 "Location: Main Campus, Block A\n\n" +
                                 "");
-        libraryInfoText.setEditable(false);
-        libraryInfoText.setLineWrap(true);
-        libraryInfoText.setWrapStyleWord(true);
+        restaurantInfoText.setEditable(false);
+        restaurantInfoText.setLineWrap(true);
+        restaurantInfoText.setWrapStyleWord(true);
 
-        JScrollPane scrollPane = new JScrollPane(libraryInfoText);
+        JScrollPane scrollPane = new JScrollPane(restaurantInfoText);
         scrollPane.setPreferredSize(new Dimension(800, 400)); // Ensure ScrollPane is properly sized
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
