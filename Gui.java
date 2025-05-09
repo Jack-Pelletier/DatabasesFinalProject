@@ -16,7 +16,7 @@ public class Gui {
     private JTable orderTable;
     private DefaultTableModel tableModel;
     private JComboBox entreeField, appsField, sideField, drinkField, banquetField, sizeField, steakField, fishField, chickenField, pastaField;
-    private JTextField nameField;
+    private JTextField ordernameField, nameField;
     private JLabel orderCountLabel;
     private GuiDAL dal; // ADDED: GUI data access object
 
@@ -133,6 +133,10 @@ public class Gui {
         JPanel detailsPanel = new JPanel(new GridLayout(6, 2, 5, 5));
         detailsPanel.setBorder(BorderFactory.createTitledBorder("Order"));
 
+        detailsPanel.add(new JLabel("Name:"));
+        ordernameField = new JTextField();
+        detailsPanel.add(ordernameField);
+
         detailsPanel.add(new JLabel("Entree:"));
         entreeField = new JComboBox();
         detailsPanel.add(entreeField);
@@ -149,17 +153,14 @@ public class Gui {
         populateDropdown(sideField, "Sides");
 
         detailsPanel.add(new JLabel("Drink:"));
-        String[] choices = {"CHOICE 1", "CHOICE 2", "CHOICE 3", "CHOICE 4", "CHOICE 5", "CHOICE 6"};
-        drinkField = new JComboBox(choices);
+        drinkField = new JComboBox();
         detailsPanel.add(drinkField);
         populateDropdown(drinkField, "Drinks");
 
         JButton addButton = new JButton("Add Order");
-        JButton deleteButton = new JButton("Cancel Order");
-
+        
         detailsPanel.add(addButton);
-        deleteButton.addActionListener(new DeleteBookListener());
-        detailsPanel.add(deleteButton);
+        addButton.addActionListener(new addOrder());
 
         orderCountLabel = new JLabel("Total Orders: 0", SwingConstants.CENTER);
         panel.add(orderCountLabel, BorderLayout.NORTH);
@@ -170,6 +171,21 @@ public class Gui {
 
         panel.add(splitPane, BorderLayout.CENTER);
         return panel;
+    }
+
+    private class addOrder implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String name = (String) ordernameField.getText().trim();
+            String entree = (String) entreeField.getSelectedItem();
+            String app = (String) appsField.getSelectedItem();
+            String side = (String) sideField.getSelectedItem();
+            String drink = (String) drinkField.getSelectedItem();
+
+
+            if (!name.isEmpty() && !entree.isEmpty() && !app.isEmpty() && !side.isEmpty() && !drink.isEmpty()) {
+                dal.AddTakeoutOrder("Italian", "root", "Flint0711##", name, entree, app, side, drink);
+            }
+        }
     }
 
     private JPanel createMenuPanel() {

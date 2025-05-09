@@ -118,9 +118,9 @@ public class GuiDAL {
     // Add a takeout order
     public boolean AddTakeoutOrder(String databaseName, String user, String password,
                                    String orderName, String entree, String appetizer,
-                                   String side, String drink, Timestamp orderDate) {
+                                   String side, String drink) {
         return TryExecutingAStoredProcedure(databaseName, user, password, "AddTakeoutOrder",
-                                            orderName, entree, appetizer, side, drink, orderDate);
+                                            orderName, entree, appetizer, side, drink);
     }
 
     // Add a reservation (with success flag OUT parameter)
