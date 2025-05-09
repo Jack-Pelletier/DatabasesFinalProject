@@ -1,6 +1,9 @@
 import java.sql.*;
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.List;
+=======
+>>>>>>> 60c569f8cf14622d554015659c71f0b47c7189c0
 
 public class GuiDAL {
     private String databaseName;
@@ -71,6 +74,7 @@ public class GuiDAL {
         return true;
     }
 
+<<<<<<< HEAD
     public ResultSet GetAllFoodItems() throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + databaseName, user, password);
         if (conn == null) {
@@ -82,11 +86,19 @@ public class GuiDAL {
             ResultSet rs = stmt.executeQuery();
             System.out.println(rs);
             return rs;
+=======
+    public ResultSet GetAllFoodItems() {
+        try {
+            Connection conn = DriverManager.getConnection(databaseName, user, password);
+            CallableStatement stmt = conn.prepareCall("{CALL GetAllFoodItems()}");
+            return stmt.executeQuery();
+>>>>>>> 60c569f8cf14622d554015659c71f0b47c7189c0
         } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
     }
+<<<<<<< HEAD
 
     public List<String> getFoodItemByCategory(String category) throws SQLException {
     List<String> foodItems = new ArrayList<>();
@@ -113,6 +125,8 @@ public class GuiDAL {
 }
 
     
+=======
+>>>>>>> 60c569f8cf14622d554015659c71f0b47c7189c0
     
     
     // Add a takeout order

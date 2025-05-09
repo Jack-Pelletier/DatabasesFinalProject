@@ -1,13 +1,12 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Scanner;
-import java.util.List;
 
 public class Gui {
 
@@ -136,6 +135,8 @@ public class Gui {
         detailsPanel.add(new JLabel("Entree:"));
         entreeField = new JComboBox();
         detailsPanel.add(entreeField);
+        entreeField = new JComboBox();
+        detailsPanel.add(entreeField);
         populateDropdown(entreeField, "Entree");
 
         detailsPanel.add(new JLabel("Appetizer:"));
@@ -185,6 +186,7 @@ public class Gui {
         searchTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
         JScrollPane searchScrollPane = new JScrollPane(searchTable);
+        searchScrollPane.setPreferredSize(new Dimension(600, 300));
         searchScrollPane.setPreferredSize(new Dimension(600, 300));
         searchScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
