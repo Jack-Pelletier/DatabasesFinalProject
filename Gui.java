@@ -16,7 +16,7 @@ public class Gui {
     private JTable orderTable;
     private DefaultTableModel tableModel;
     private JComboBox entreeField, appsField, sideField, drinkField, banquetField, sizeField, steakField, fishField, chickenField, pastaField;
-    private JTextField ordernameField, nameField;
+    private JTextField ordernameField, nameField, orderdeleteField, reservationdeleteField, timeField;
     private JLabel orderCountLabel;
     private GuiDAL dal; // ADDED: GUI data access object
 
@@ -32,6 +32,9 @@ public class Gui {
         tabbedPane.addTab("Menu", createMenuPanel());
         tabbedPane.addTab("Takeout Orders", createOrderManagementPanel());
         tabbedPane.addTab("Banquet Reservations", createBanquetManagementPanel());
+        tabbedPane.addTab("Admin Orders", createAdminDeleteManagementPanel());
+        tabbedPane.addTab("Admin Reservation", createAdminDeleteReservationManagementPanel());
+
 
         frame.add(tabbedPane);
         frame.setVisible(true);
@@ -44,8 +47,8 @@ public class Gui {
         detailsPanel.setBorder(BorderFactory.createTitledBorder("Order"));
 
         detailsPanel.add(new JLabel("Banquet Room:"));
-        String[] choices = {"CHOICE 1", "CHOICE 2", "CHOICE 3", "CHOICE 4", "CHOICE 5", "CHOICE 6"};
-        banquetField = new JComboBox(choices);
+        banquetField = new JComboBox();
+        for (int i = 1; i <= 6; i++) banquetField.addItem(i);
         detailsPanel.add(banquetField);
 
         detailsPanel.add(new JLabel("Group Size:"));
@@ -56,6 +59,10 @@ public class Gui {
         detailsPanel.add(new JLabel("Name:"));
         nameField = new JTextField();
         detailsPanel.add(nameField);
+
+        detailsPanel.add(new JLabel("Date and Time (yyyy-MM-dd HH):"));
+        timeField = new JTextField();
+        detailsPanel.add(timeField);
 
         detailsPanel.add(new JLabel("Steak Meals ($36 per):"));
         steakField = new JComboBox();
@@ -77,17 +84,17 @@ public class Gui {
         for (int i = 0; i <= 50; i++) pastaField.addItem(i);
         detailsPanel.add(pastaField);
 
-        JButton addButton = new JButton("Add Reservation");
-        JButton deleteButton = new JButton("Cancel Reservation");
-        detailsPanel.add(addButton);
-        detailsPanel.add(deleteButton);
+        JButton addReservationButton = new JButton("Add Reservation");
+        detailsPanel.add(addReservationButton);
+        addReservationButton.addActionListener(new addReservation());
 
         JTextArea reservationInfoText = new JTextArea();
         reservationInfoText.setText("Reservation Info:\n\n" +
                 "Open Hours: Mon - Sun (4 PM - 10 PM)\n" +
                 "Reservations are held for 2 hour blocks\n" +
-                "The primary banquet room holds a maximum of 50 guests, while the Sinatra holds 20, all other rooms fit a table of 8\n" +
-                "All Guests MUST choose from one of the banquet meal options.\n");
+                "The primary banquet room, room 6 holds a maximum of 50 guests, while the Sinatra room, room 5 holds 20, all other rooms fit a table of 8\n" +
+                "All Guests MUST choose from one of the banquet meal options.\n" +
+                "Date and time format (yyyy-MM-dd HH):\n");
         reservationInfoText.setEditable(false);
         reservationInfoText.setLineWrap(true);
         reservationInfoText.setWrapStyleWord(true);
@@ -101,7 +108,7 @@ public class Gui {
         JTextField searchField = new JTextField(20);
         searchPanel.add(searchField);
 
-        DefaultTableModel searchTableModel = new DefaultTableModel(new String[]{"Name", "Room", "Party Size", "Cost ($)", "Steak Meals", "Salmon Meals", "Chicken Meals", "Pasta Meals", "Date"}, 0);
+        DefaultTableModel searchTableModel = new DefaultTableModel(new String[]{"Name", "Room", "Party Size", "Steak Meals", "Salmon Meals", "Chicken Meals", "Pasta Meals", "Date"}, 0);
         JTable searchTable = new JTable(searchTableModel);
         searchTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
@@ -114,13 +121,135 @@ public class Gui {
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(detailsPanel, BorderLayout.NORTH);
 
+        loadReservationsIntoTable(searchTableModel);
         return panel;
     }
+
+    private class addReservation implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String name = nameField.getText().trim();
+            int hall = (int) banquetField.getSelectedItem();
+            int size = (int) sizeField.getSelectedItem();
+            int steak = (int) steakField.getSelectedItem();
+            int salmon = (int) fishField.getSelectedItem();
+            int chicken = (int) chickenField.getSelectedItem();
+            int pasta =  (int) pastaField.getSelectedItem();
+            String time = timeField.getText().trim();
+
+
+            if (!name.isEmpty() && !time.isEmpty()) {
+                dal.AddReservation("Italian", "root", "Flint0711##", name, hall, size, steak, salmon, chicken, pasta, time);
+            } else 
+                JOptionPane.showMessageDialog(frame, "Please fill out all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    
+
+    private JPanel createAdminDeleteManagementPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        String[] columnNames = {"Name", "Cost ($)", "Entree", "Appetizer", "Side", "Drink"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        orderTable = new JTable(tableModel);
+        orderTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        JScrollPane tableScrollPane = new JScrollPane(orderTable);
+        tableScrollPane.setPreferredSize(new Dimension(450, 300));
+        tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        tableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        JPanel detailsPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        detailsPanel.setBorder(BorderFactory.createTitledBorder("Order"));
+
+        detailsPanel.add(new JLabel("Name:"));
+        orderdeleteField = new JTextField();
+        detailsPanel.add(orderdeleteField);
+
+
+        JButton addButton = new JButton("Remove Order");
+        
+        detailsPanel.add(addButton);
+        addButton.addActionListener(new deleteOrder());
+
+        orderCountLabel = new JLabel("Total Orders: 0", SwingConstants.CENTER);
+        panel.add(orderCountLabel, BorderLayout.NORTH);
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScrollPane, detailsPanel);
+        splitPane.setDividerLocation(500);
+        splitPane.setContinuousLayout(true);
+
+        loadTakeoutOrdersIntoTable();
+        panel.add(splitPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private class deleteOrder implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String namedelete = orderdeleteField.getText().trim();
+                
+            if (!namedelete.isEmpty()) {
+                dal.CancelTakeoutOrder("Italian", "root", "Flint0711##", namedelete);
+            } else if (namedelete.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please add an order name to delete!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private JPanel createAdminDeleteReservationManagementPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        String[] columnNames = {"Name", "Room", "Party Size", "Steak Meals", "Salmon Meals", "Chicken Meals", "Pasta Meals", "Date"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        orderTable = new JTable(tableModel);
+        orderTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        JScrollPane tableScrollPane = new JScrollPane(orderTable);
+        tableScrollPane.setPreferredSize(new Dimension(450, 300));
+        tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        tableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        JPanel detailsPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        detailsPanel.setBorder(BorderFactory.createTitledBorder("Order"));
+
+        detailsPanel.add(new JLabel("Name:"));
+        reservationdeleteField = new JTextField();
+        detailsPanel.add(reservationdeleteField);
+
+
+        JButton addButton = new JButton("Remove Reservation");
+        
+        detailsPanel.add(addButton);
+        addButton.addActionListener(new deleteReservation());
+
+        orderCountLabel = new JLabel("Total Reservations: 0", SwingConstants.CENTER);
+        panel.add(orderCountLabel, BorderLayout.NORTH);
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScrollPane, detailsPanel);
+        splitPane.setDividerLocation(500);
+        splitPane.setContinuousLayout(true);
+
+        loadReservationsIntoTable(tableModel);
+        panel.add(splitPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private class deleteReservation implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String resnamedelete = reservationdeleteField.getText().trim();
+                
+            if (!resnamedelete.isEmpty()) {
+                dal.CancelReservation("Italian", "root", "Flint0711##", resnamedelete);
+            } else if (resnamedelete.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please add a reservation name to delete!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
 
     private JPanel createOrderManagementPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        String[] columnNames = {"Meal", "Calories", "Cost", "Gluten Free", "Seafood"};
+        String[] columnNames = {"Name", "Cost ($)", "Entree", "Appetizer", "Side", "Drink"};
         tableModel = new DefaultTableModel(columnNames, 0);
         orderTable = new JTable(tableModel);
         orderTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -169,13 +298,38 @@ public class Gui {
         splitPane.setDividerLocation(500);
         splitPane.setContinuousLayout(true);
 
+        loadTakeoutOrdersIntoTable();
         panel.add(splitPane, BorderLayout.CENTER);
         return panel;
     }
 
+    private class loadTakeoutOrdersIntoTableButton implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            try {
+                ResultSet rs = dal.GetAllTakeoutOrders("Italian", "root", "Flint0711##");
+        
+                // Clear existing table data
+                tableModel.setRowCount(0);
+        
+                while (rs.next()) {
+                    String orderName = rs.getString("OrderName");
+                    String entree = rs.getString("Entree");
+                    String appetizer = rs.getString("Appetizer");
+                    String side = rs.getString("Side");
+                    String drink = rs.getString("Drink");
+        
+                    Object[] row = { orderName, entree, appetizer, side, drink };
+                    tableModel.addRow(row);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     private class addOrder implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            String name = (String) ordernameField.getText().trim();
+            String name = ordernameField.getText().trim();
             String entree = (String) entreeField.getSelectedItem();
             String app = (String) appsField.getSelectedItem();
             String side = (String) sideField.getSelectedItem();
@@ -184,6 +338,9 @@ public class Gui {
 
             if (!name.isEmpty() && !entree.isEmpty() && !app.isEmpty() && !side.isEmpty() && !drink.isEmpty()) {
                 dal.AddTakeoutOrder("Italian", "root", "Flint0711##", name, entree, app, side, drink);
+            } else if (name.isEmpty()) {
+                System.out.println(name);
+                JOptionPane.showMessageDialog(frame, "Please add an order name!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -245,9 +402,9 @@ public class Gui {
         JPanel panel = new JPanel(new BorderLayout());
 
         JTextArea restaurantInfoText = new JTextArea();
-        restaurantInfoText.setText("Welcome to ...!\n\n" +
+        restaurantInfoText.setText("Welcome to Minton's Steakhouse!\n\n" +
                 "Open Hours: Mon - Sun (4 PM - 10 PM)\n" +
-                "Location: Main Campus, Block A\n\n");
+                "Location: Main Campus, North Residental Village, Building 7, Room 105. (Don't visit we will be fleeing the state within the hour)\n\n");
         restaurantInfoText.setEditable(false);
         restaurantInfoText.setLineWrap(true);
         restaurantInfoText.setWrapStyleWord(true);
@@ -259,23 +416,6 @@ public class Gui {
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }
-
-    private class DeleteBookListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            int selectedRow = orderTable.getSelectedRow();
-            if (selectedRow != -1) {
-                tableModel.removeRow(selectedRow);
-                updateBookCount();
-            } else {
-                JOptionPane.showMessageDialog(frame, "Please select an order to delete!", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    private void updateBookCount() {
-        orderCountLabel.setText("Total Orders: " + tableModel.getRowCount());
-    }
-
 
 
     
@@ -291,9 +431,51 @@ public class Gui {
         }
     }
 
-
+    public void loadTakeoutOrdersIntoTable() {
+        try {
+            ResultSet rs = dal.GetAllTakeoutOrders("Italian", "root", "Flint0711##");
     
+            // Clear existing table data
+            tableModel.setRowCount(0);
+    
+            while (rs.next()) {
+                String orderName = rs.getString("OrderName");
+                int cost = rs.getInt("Cost");
+                String entree = rs.getString("Entree");
+                String appetizer = rs.getString("Appetizer");
+                String side = rs.getString("Side");
+                String drink = rs.getString("Drink");
+    
+                Object[] row = { orderName, cost, entree, appetizer, side, drink };
+                tableModel.addRow(row);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 
+    private void loadReservationsIntoTable(DefaultTableModel model) {
+        model.setRowCount(0); // Clear existing rows
+        try {
+            ResultSet rs = dal.GetAllReservations();
+            while (rs != null && rs.next()) {
+                Object[] row = new Object[]{
+                    rs.getString("ReservationName"),
+                    rs.getInt("BanquetHall"),
+                    rs.getInt("PartySize"),
+                    rs.getInt("SteakMeals"),
+                    rs.getInt("SalmonMeals"),
+                    rs.getInt("ChickenMeals"),
+                    rs.getInt("PastaMeals"),
+                    rs.getString("ReservationDate")
+                };
+                model.addRow(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
 
     public static void main(String[] args) {
         Scanner userInformation = new Scanner(System.in);

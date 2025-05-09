@@ -127,35 +127,53 @@ public class GuiDAL {
     public boolean AddReservation(String databaseName, String user, String password,
                                   String reservationName, int banquetHall, int partySize,
                                   int steakMeals, int salmonMeals, int chickenMeals,
-                                  int pastaMeals, Timestamp reservationDate) {
-        Connection conn = getMySQLConnection();
-        if (conn == null) return false;
-
-        try {
-            CallableStatement stmt = conn.prepareCall("{CALL AddReservation(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
-            stmt.setString(1, reservationName);
-            stmt.setInt(2, banquetHall);
-            stmt.setInt(3, partySize);
-            stmt.setInt(4, steakMeals);
-            stmt.setInt(5, salmonMeals);
-            stmt.setInt(6, chickenMeals);
-            stmt.setInt(7, pastaMeals);
-            stmt.setTimestamp(8, reservationDate);
-            stmt.registerOutParameter(9, java.sql.Types.BOOLEAN); // Output parameter
-
-            stmt.execute();
-            return stmt.getBoolean(9); // Return success flag
-        } catch (SQLException ex) {
-            System.out.println("Error adding reservation: " + ex.getMessage());
-            return false;
-        }
+                                  int pastaMeals, String reservationDate) {
+        return TryExecutingAStoredProcedure(databaseName, user, password, "AddReservation", reservationName, banquetHall, partySize, steakMeals, salmonMeals, chickenMeals, pastaMeals, reservationDate);
+                                  
     }
 
-    // Cancel a reservation or takeout order
-    public boolean CancelOrderOrReservation(String databaseName, String user, String password,
-                                            String type, String name) {
-        return TryExecutingAStoredProcedure(databaseName, user, password, "CancelOrderOrReservation",
-                                            type, name);
+    public ResultSet GetAllTakeoutOrders(String databaseName, String user, String password) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + databaseName, user, password);
+        if (conn == null) {
+            System.out.println("Failed to get a connection, cannot execute stored procedure");
+            return null;
+        }
+        try {
+            CallableStatement stmt = conn.prepareCall("{CALL GetAllTakeoutOrders()}");
+            return stmt.executeQuery();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+    
+    public ResultSet GetAllReservations() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + databaseName, user, password);
+        if (conn == null) {
+            System.out.println("Connection failed. Cannot load reservations.");
+            return null;
+        }
+    
+        try {
+            CallableStatement stmt = conn.prepareCall("{CALL GetAllReservations()}");
+            return stmt.executeQuery();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+    
+
+    public boolean CancelTakeoutOrder(String databaseName, String user, String password,
+                                   String orderName) {
+        return TryExecutingAStoredProcedure(databaseName, user, password, "CancelTakeoutOrder",
+                                            orderName);
+    }
+
+    public boolean CancelReservation(String databaseName, String user, String password,
+                                   String resName) {
+        return TryExecutingAStoredProcedure(databaseName, user, password, "CancelReservation",
+                                            resName);
     }
 
 }
