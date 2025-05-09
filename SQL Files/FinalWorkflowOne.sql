@@ -14,3 +14,4 @@ BEGIN
     FROM Sides;
 END$$
 DELIMITER ;
+Call GetAllFoodItems();
